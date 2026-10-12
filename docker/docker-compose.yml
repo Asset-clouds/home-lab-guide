@@ -1,0 +1,99 @@
+# Home lab containers.
+# Run from this folder on the server:  docker compose up -d
+# (copy .env.example to .env and fill it in first)
+#
+# Every published port is bound to 127.0.0.1 on purpose. Docker bypasses ufw,
+# so a plain "3001:3001" would be open to the whole network. The cloudflared
+# service on the host reaches these via localhost, and private ones are shared
+# to your tailnet with "tailscale serve".
+
+name: homelab
+
+services:
+  # Public landing page, served at the site root (see the tunnel config).
+  # Add more static sites by copying this block with a new folder and port.
+  hub:
+    image: nginx:alpine
+    container_name: hub
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9000:80"
+    volumes:
+      - ../sites/hub:/usr/share/nginx/html:ro
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    # Host networking so Kuma can reach services bound to 127.0.0.1 on the
+    # host (use http://127.0.0.1:PORT as monitor targets). No ports: entry
+    # needed. Unlike published ports, host networking IS subject to ufw, so
+    # 3001 stays closed to the LAN as long as ufw doesn't allow it. Reach it
+    # over Tailscale / SSH tunnel.
+    network_mode: host
+    volumes:
+      - uptime-kuma-data:/app/data
+
+  # Private AI chat with web search, using Ollama on the host. Tailscale only:
+  # no tunnel route. Exposed to the tailnet with
+  #   sudo tailscale serve --bg --http=3100 http://127.0.0.1:3100
+  # SearXNG has no published port; Open WebUI reaches it as http://searxng:8080.
+  #
+  # Ollama runs on the HOST, not in Docker. A bridge-networked container
+  # reaches the host through host-gateway, which only works if Ollama is NOT
+  # bound to 127.0.0.1 only. scripts/bootstrap.sh sets OLLAMA_HOST=0.0.0.0:11434
+  # and adds a ufw rule that lets Docker in but keeps the LAN out:
+  #   sudo ufw allow from 172.16.0.0/12 to any port 11434 proto tcp
+  # See docs/uptime-kuma.md ("Ollama and ufw") for the full explanation.
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:8080"
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - ENABLE_WEB_SEARCH=true
+      - WEB_SEARCH_ENGINE=searxng
+      - SEARXNG_QUERY_URL=http://searxng:8080/search?q=<query>
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - open-webui-data:/app/backend/data
+    depends_on:
+      - searxng
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    environment:
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+
+  # Drag-and-drop file uploads from a browser. Tailscale only: no tunnel
+  # route. Files land in ../uploads. Exposed to the tailnet with
+  #   sudo tailscale serve --bg --http=3200 http://127.0.0.1:3200
+  # First login is "admin" with a random password printed once in
+  #   docker logs filebrowser
+  # Change it straight away. The image runs as uid 1000, which is the first
+  # user on a fresh Ubuntu install, so uploads are owned by you.
+  filebrowser:
+    image: filebrowser/filebrowser:v2
+    container_name: filebrowser
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3200:80"
+    volumes:
+      - ../uploads:/srv
+      - filebrowser-config:/config
+      - filebrowser-db:/database
+
+volumes:
+  uptime-kuma-data:
+  open-webui-data:
+  filebrowser-config:
+  filebrowser-db:

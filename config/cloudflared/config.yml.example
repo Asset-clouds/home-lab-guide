@@ -1,0 +1,26 @@
+# Example cloudflared config. Replace example.com with your own domain.
+# Copy to /etc/cloudflared/config.yml and fill in the placeholders.
+# Do NOT commit the real credentials file or cert.pem.
+
+tunnel: <TUNNEL_ID>
+credentials-file: /etc/cloudflared/<TUNNEL_ID>.json
+
+# One hostname per public thing. Rules are matched top to bottom.
+# All backends are plain http on localhost, so no originRequest / noTLSVerify needed.
+ingress:
+  - hostname: example.com
+    service: http://localhost:9000      # hub landing page
+
+  - hostname: www.example.com
+    service: http://localhost:9000      # same hub
+
+  # An app of your own on its own subdomain, e.g. one listening on 5000:
+  # - hostname: app.example.com
+  #   service: http://localhost:5000
+
+  # Private services are deliberately absent: Open WebUI (3100), File Browser
+  # (3200), Ollama (11434) and Uptime Kuma (3001). They are Tailscale only.
+  # Anything not listed above falls through to the 404 below.
+
+  # Required final rule: anything else gets a 404
+  - service: http_status:404

@@ -1,0 +1,12 @@
+# SearXNG settings for Open WebUI's web search. Private: no published port,
+# only reachable by Open WebUI over the compose network.
+# The secret key comes from SEARXNG_SECRET (docker/.env), not this file.
+use_default_settings: true
+server:
+  limiter: false
+  public_instance: false
+  image_proxy: false
+search:
+  formats:
+    - html
+    - json

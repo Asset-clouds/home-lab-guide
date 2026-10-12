@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My home lab</title>
+<meta name="description" content="Projects hosted on a small server at home.">
+<meta name="color-scheme" content="light dark">
+<style>
+:root{--bg:#f4f6f7;--surface:#fff;--ink:#14232d;--muted:#4b5f6b;--line:#d5dee3;--accent:#1d6683}
+@media (prefers-color-scheme:dark){:root{--bg:#0c1820;--surface:#14232f;--ink:#e8eef2;--muted:#9aa8b3;--line:#1f3140;--accent:#8fd0e6}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1.0625rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{width:min(100% - 2rem,44rem);margin:0 auto;padding:4rem 0}
+h1{font:600 clamp(2.2rem,8vw,3.5rem)/1.1 Georgia,serif;margin:0 0 1rem}
+h2{font:600 1.5rem/1.2 Georgia,serif;margin:2.5rem 0 1rem}
+p{color:var(--muted);margin:0 0 1rem}
+ul{list-style:none;margin:0;padding:0;display:grid;gap:1rem}
+a.card{display:block;padding:1.25rem;background:var(--surface);border:1px solid var(--line);border-radius:14px;color:var(--ink);text-decoration:none}
+a.card:hover{border-color:var(--accent)}
+a.card strong{display:block;font-size:1.2rem}
+a.card span{color:var(--muted)}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+footer{color:var(--muted);font-size:.95rem;margin-top:3rem}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>My home lab</h1>
+  <p>Things I build and run on a small server at home. Edit <code>sites/hub/index.html</code> to make this page your own.</p>
+
+  <h2>Projects</h2>
+  <ul>
+    <li><a class="card" href="https://app.example.com"><strong>My first app</strong><span>A short description of what it does.</span></a></li>
+  </ul>
+
+  <footer>Hosted at home. It's a homelab, so it can go down now and then.</footer>
+</main>
+</body>
+</html>

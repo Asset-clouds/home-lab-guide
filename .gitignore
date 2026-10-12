@@ -1,0 +1,40 @@
+# Secrets and credentials: never commit
+.env
+*.env
+!.env.example
+!*.env.example
+cert.pem
+*.pem
+*.key
+.cloudflared/
+
+# Cloudflare tunnel credentials (<TUNNEL_ID>.json) and the real config.
+# Examples stay tracked.
+config/cloudflared/*.json
+!config/cloudflared/*.example.json
+config/cloudflared/config.yml
+!config/cloudflared/config.yml.example
+
+# Files that belong in /etc/homelab on the server, in case one gets copied in
+kuma-*-url
+backup.conf
+etc-homelab/
+homelab-secrets/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local databases (live in Docker volumes, not git)
+*.db
+*.sqlite3
+
+# Logs and OS junk
+*.log
+.DS_Store
+
+# File Browser uploads (keep the folder so Docker does not create it as root)
+uploads/*
+!uploads/.gitkeep
