@@ -197,3 +197,7 @@ docs/
 ```
 
 Real credentials never go in this repo. See `.gitignore`.
+
+## Licence
+
+MIT: copy it, change it, use it for anything. See [LICENSE](LICENSE).
